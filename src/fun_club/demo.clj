@@ -24,4 +24,4 @@
   [form]
   `(format
      "Output of %d characters suppressed." 
-     (count (str (time ~form)))))
+     (count (pr-str (time ~form)))))
