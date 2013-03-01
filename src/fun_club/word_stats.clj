@@ -26,18 +26,13 @@
           second >
           (seq (frequencies xs)))))
 
-; Command line entry point
-
-(defn main*
-  "Prints the ten most frequent words in a sequence of lines along with the
-   number of their appearances"
-  [ls]
-  (doseq [[word freq] (n-most-frequent 10 (words ls))]
-    (println (format "%s: %d" word freq))))
+; Separate benchmark function for easy access from the REPL
 
 (defn bench [stream]
   (let [ls (lines stream)]
     (cr/bench (n-most-frequent 10 (words ls)))))
+
+; Command line entry point
 
 (defn -main [& args]
   (case (first args)
@@ -45,17 +40,8 @@
     ; There's no other way: we cannot reprocess standard input.
     ("-b" "--bench") (bench System/in)
 
-    ; This form also uses let, but the reference is not being used later.
-    ; Clojure's compiler realizes that the reference is not being used and
-    ; does optimization to avoid head retention.
-    ("-l" "--let") (let [ls (lines System/in)]
-                      (main* ls))
-
-    ; This becomes obvious if we actually use the reference after processing.
-    ; Head retention is not being avoided here.
-    ("-k" "--keep") (let [ls (lines System/in)]
-                      (main* ls)
-                      (second ls))
+    ; Room for more switches here.
 
     ; Default: run once, don't keep a reference to the sequence.
-    (main* (lines System/in))))
+    (doseq [[word freq] (n-most-frequent 10 (words (lines System/in)))]
+      (println (format "%s: %d" word freq)))))
