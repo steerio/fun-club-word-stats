@@ -7,19 +7,17 @@
 (def ^:dynamic *parallel-threads*
   (+ 2 (.. Runtime getRuntime availableProcessors)))
 
-(defn- round-robin [n coll]
-  (letfn [(part [i c]
+(defn round-robin [n coll]
+  (letfn [(part [curr coll*]
             (lazy-seq
-              (if (pos? i)
+              (if (pos? curr)
                 (cons
-                  (take-nth n c)
-                  (if-let [rst (next c)]
-                    (part (dec i) rst))))))]
+                  (take-nth n coll*)
+                  (if-let [rst (next coll*)]
+                    (part (dec curr) rst))))))]
     (part n coll)))
 
 (defn frequencies [xs]
   (apply
     merge-with +
-    (map deref
-         (map #(future (c/frequencies %))
-              (round-robin *parallel-threads* xs)))))
+    (pmap c/frequencies (round-robin *parallel-threads* xs))))
