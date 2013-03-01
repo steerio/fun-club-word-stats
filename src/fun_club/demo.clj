@@ -11,12 +11,7 @@
     (cons a
           (fib b (+' a b)))))
 
-; These macros help us suppress output when we benchmark the fib function
-
-(defmacro muzzle
-  "Executes `forms`, returns nil"
-  [& forms]
-  `(do ~@forms nil))
+; This macro helps us suppress output when we benchmark the fib function
 
 (defmacro silent-time
   "Run `form` through the time macro, then count the characters of the
